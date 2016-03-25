@@ -214,6 +214,23 @@ describe('combine', function () {
   });
 });
 
+describe('times', function () {
+  it('uses addition to combine by default', function () {
+    var combined = Aleatory.dice(6).times(3);
+    assert(combined.probabilityAt(3).equals(Fraction(1/216)));
+    assert(combined.probabilityAt(4).equals(Fraction(3/216)));
+    assert(combined.mean().equals(Fraction(21/2)))
+  });
+
+  it('supports custom combiner function', function () {
+    var combined = Aleatory.dice(6).times(3, function(x, y) {
+      return x * y;
+    });
+    assert(combined.probabilityAt(1).equals(Fraction(1/216)));
+    assert(combined.probabilityAt(4).equals(Fraction(6/216)));
+  });
+});
+
 describe('Aleatory', function () {
   it('distinguishes numbers and strings with the same string representation', function () {
     var mixed = Aleatory.uniform([0, 0, "0", "1", 2]);

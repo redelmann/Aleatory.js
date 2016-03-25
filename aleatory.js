@@ -179,6 +179,41 @@
         };
 
         /**
+         * Take `n` independant values from this Aleatory variable and
+         * combine them using `combiner`. Returns the Aleatory variable 
+         * of the combinations.
+         *
+         * @param {number} n - Number of times values are taken from `this`.
+         * @param {Function=} combiner - Binary function used to combine values.
+         *                               Should be associative. Defaults to addition.
+         * @return {Aleatory} The Aleatory variable of combinations.
+         */
+        Aleatory.prototype.times = function (n, combiner) {
+            if (n <= 0) {
+                return undefined;
+            }
+            if (n == 1) {
+                return this;
+            }
+            if (combiner === undefined) {
+                combiner = function (x, y) {
+                    if (x.add) {
+                        return x.add(y);
+                    }
+                    return x + y;
+                };
+            }
+            var div = Math.floor(n / 2);
+            var mod = n % 2;
+            var half = this.times(div);
+            var mult = half.combine(combiner, half); 
+            if (mod === 1) {
+                mult = mult.combine(combiner, this);
+            }
+            return mult;
+        }
+
+        /**
          * Bernouli trials distribution.
          * Each number i between 0 and n inclusive is associated
          * with the probability of having exactly i successful outcomes
