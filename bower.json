@@ -1,0 +1,36 @@
+{
+  "name": "aleatory.js",
+  "description": "A discrete random variable library",
+  "main": "aleatory.js",
+  "authors": [
+    "Romain Edelmann <romain.edelmann@gmail.com>"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [
+    "math",
+    "distribution",
+    "probability",
+    "random",
+    "random",
+    "variable",
+    "aleatory",
+    "variable"
+  ],
+  "homepage": "https://github.com/redelmann/Aleatory.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/redelmann/Aleatory.js.git"
+  },
+  "moduleType": ["amd", "node", "globals"],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "out"
+  ],
+  "dependencies": {
+    "fraction.js": ">= 3.0.0"
+  }
+}
