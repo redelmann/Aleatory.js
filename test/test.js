@@ -4,15 +4,15 @@ var Fraction = require('fraction.js');
 
 describe('always', function () {
   it('assigns probability 1 to the argument', function () {
-    assert.equal(1, Aleatory.always(6).probabilityAt(6).valueOf());
-    assert.equal(1, Aleatory.always(0).probabilityAt(0).valueOf());
-    assert.equal(1, Aleatory.always("foo").probabilityAt("foo").valueOf());
+    assert.equal(Aleatory.always(6).probabilityAt(6).valueOf(), 1);
+    assert.equal(Aleatory.always(0).probabilityAt(0).valueOf(), 1);
+    assert.equal(Aleatory.always("foo").probabilityAt("foo").valueOf(), 1);
   });
 
   it('assigns probability 0 to other values', function () {
-    assert.equal(0, Aleatory.always(6).probability(function (x) { return x !== 6; }).valueOf());
-    assert.equal(0, Aleatory.always(0).probability(function (x) { return x !== 0; }).valueOf());
-    assert.equal(0, Aleatory.always("foo").probability(function (x) { return x !== "foo"; }).valueOf());
+    assert.equal(Aleatory.always(6).probability(function (x) { return x !== 6; }).valueOf(), 0);
+    assert.equal(Aleatory.always(0).probability(function (x) { return x !== 0; }).valueOf(), 0);
+    assert.equal(Aleatory.always("foo").probability(function (x) { return x !== "foo"; }).valueOf(), 0);
   });
 });
 
@@ -29,7 +29,7 @@ describe('uniform', function () {
   });
 
   it('is undefined when the list of elements is empty', function () {
-    assert.equal(undefined, Aleatory.uniform([]));
+    assert.equal(Aleatory.uniform([]), undefined);
   });
 
   it('assigns a probability proportional to the number of occurences', function () {
@@ -81,12 +81,12 @@ describe('weighted', function () {
   });
 
   it('is undefined when some weights are negative', function () {
-    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: -2}, {value: 3, weight: 3}]));
-    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: -1}]));
+    assert.equal(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: -2}, {value: 3, weight: 3}]), undefined);
+    assert.equal(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: -1}]), undefined);
   });
 
   it('is undefined when all weights are 0', function () {
-    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 0}, {value: 2, weight: 0}, {value: 3, weight: 0}]));
+    assert.equal(Aleatory.weighted([{value: 1, weight: 0}, {value: 2, weight: 0}, {value: 3, weight: 0}]), undefined);
   });
 
   it('assigns a probability proportional to the sum of the weights of the occurences', function () {
@@ -107,8 +107,8 @@ describe('dice', function () {
   });
 
   it('is undefined when n is non-positive', function () {
-    assert.equal(undefined, Aleatory.dice(0));
-    assert.equal(undefined, Aleatory.dice(-12));
+    assert.equal(Aleatory.dice(0), undefined);
+    assert.equal(Aleatory.dice(-12), undefined);
   });
 });
 
@@ -120,8 +120,8 @@ describe('trials', function () {
   });
 
   it('is undefined when a negative number of trials are performed.', function () {
-    assert.equal(undefined, Aleatory.trials(-1, Aleatory.always(true)));
-    assert.equal(undefined, Aleatory.trials(-4, Aleatory.always(false)));
+    assert.equal(Aleatory.trials(-1, Aleatory.always(true)), undefined);
+    assert.equal(Aleatory.trials(-4, Aleatory.always(false)), undefined);
   });
 
   it('considers all falsy values to be failures', function () {
@@ -145,15 +145,15 @@ describe('trials', function () {
 
 describe('assume', function () {
   it('returns undefined when the predicate does not hold on any value', function () {
-    assert.equal(undefined, Aleatory.uniform([1, 2, 3, 4]).assume(function (x) { return x > 5; }));
+    assert.equal(Aleatory.uniform([1, 2, 3, 4]).assume(function (x) { return x > 5; }), undefined);
   });
 
   it('returns only and all values that satisfy the predicate', function () {
     var domain = Aleatory.uniform([1, 2, 3, 4, 5, 6]).assume(function (x) { return x > 2 && x < 6; }).domain();
-    assert.equal(3, domain.find(function (x) { return x === 3; }));
-    assert.equal(4, domain.find(function (x) { return x === 4; }));
-    assert.equal(5, domain.find(function (x) { return x === 5; }));
-    assert.equal(3, domain.length);
+    assert.equal(domain.find(function (x) { return x === 3; }), 3);
+    assert.equal(domain.find(function (x) { return x === 4; }), 4);
+    assert.equal(domain.find(function (x) { return x === 5; }), 5);
+    assert.equal(domain.length, 3);
   });
 
   it('correctly compute probabilities of elements satisfying the predicate', function () {
