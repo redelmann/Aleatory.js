@@ -3,7 +3,9 @@ Aleatory.js
 ===========
 
 [![NPM Package](https://img.shields.io/npm/v/aleatory.js.svg?style=flat)](https://npmjs.org/package/aleatory.js "View this project on npm")
-[![Apache-2.0 license](http://img.shields.io/badge/license-Apache-brightgreen.svg)](http://opensource.org/licenses/Apache-2.0)
+![Bower version](https://img.shields.io/bower/v/aleatory.js.svg)
+[![Build Status](https://travis-ci.org/redelmann/Aleatory.js.svg?branch=master)](https://travis-ci.org/redelmann/Aleatory.js "View this project on Travis-CI")
+[![Apache-2.0 license](http://img.shields.io/badge/license-Apache-orange.svg)](http://opensource.org/licenses/Apache-2.0 "View the Apache-2.0 License")
 
 A discrete random variable library in Javascript with a functional interface.
 
