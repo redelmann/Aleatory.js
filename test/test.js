@@ -61,9 +61,24 @@ describe('weighted', function () {
     assert.equal(undefined, Aleatory.weighted([]));
   });
 
-  it('is undefined when some weights are not non-positive', function () {
+  it('supports weights of 0', function () {
+    var random = Aleatory.weighted([
+      { value: 1, weight: 0 },
+      { value: 2, weight: 1 },
+      { value: 2, weight: 0 }
+    ]);
+
+    assert(random.domain().length === 1);
+    assert(random.probabilityAt(2).equals(Fraction(1)));
+  });
+
+  it('is undefined when some weights are negative', function () {
     assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: -2}, {value: 3, weight: 3}]));
-    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 0}]));
+    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: -1}]));
+  });
+
+  it('is undefined when all weights are 0', function () {
+    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 0}, {value: 2, weight: 0}, {value: 3, weight: 0}]));
   });
 
   it('assigns a probability proportional to the sum of the weights of the occurences', function () {

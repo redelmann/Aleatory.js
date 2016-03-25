@@ -302,6 +302,9 @@
          * In case of duplicate elements, the probability of each element
          * is proportional to the sum of the weights of its occurences.
          *
+         * Elements with weight 0 are supported and have no effects.
+         * Negative weights are not supported.
+         *
          * @param {Array} elements - An array of `{value, weight}` objects.
          * @return {Aleatory} The weighted Aleatory variable over the elements.
          */
@@ -309,6 +312,7 @@
             var n = elements.length;
 
             if (n <= 0) {
+                // No items
                 return undefined;
             }
 
@@ -316,17 +320,25 @@
             var content = {};
             var i;
             for (i = 0; i < n; i++) {
-                var aliasItem = content[getKey(elements[i].value)];
                 var itemWeight = Fraction(elements[i].weight);
-                if (itemWeight.compare(0) !== 1) {
+                if (itemWeight.compare(0) === -1) {
+                    // Negative weights are not supported.
                     return undefined;
+                }
+                if (itemWeight.equals(Fraction(0))) {
+                    continue;
                 }
                 total = total.add(itemWeight);
                 var item = new Item(elements[i], itemWeight);
+                var aliasItem = content[getKey(elements[i].value)];
                 if (aliasItem !== undefined) {
                     item.probability = item.probability.add(aliasItem.probability);
                 }
                 content[getKey(elements[i].value)] = item;
+            }
+            if (total.compare(0) !== 1) {
+                // No item with weight > 0
+                return undefined;
             }
             for (var key in content) {
                 if (content.hasOwnProperty(key)) {
