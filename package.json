@@ -14,7 +14,7 @@
     "license": "Apache-2.0",
     "repository": {
         "type": "git",
-        "url": "git://github.com/redelmann/Distribution.js.git"
+        "url": "git://github.com/redelmann/Aleatory.js.git"
     },
     "engines": {
         "node": "*"
