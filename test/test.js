@@ -160,3 +160,87 @@ describe('combine', function () {
   });
 });
 
+describe('Aleatory', function () {
+  it('distinguishes numbers and strings with the same string representation', function () {
+    var mixed = Aleatory.uniform([0, 0, "0", "1", 2]);
+    assert(mixed.probabilityAt(0).equals(Fraction(2 / 5)));
+    assert(mixed.probabilityAt("0").equals(Fraction(1 / 5)));
+    assert(mixed.probabilityAt(1).equals(Fraction(0)));
+    assert(mixed.probabilityAt("1").equals(Fraction(1 / 5)));
+    assert(mixed.probabilityAt(2).equals(Fraction(1 / 5)));
+    assert(mixed.probabilityAt("2").equals(Fraction(0)));
+  });
+
+  it('uses the toHash method of objects for their indentity, if present', function () {
+    var a1 = {x: 2, y: 3, toHash: function () { return "123456"; }, toString: function () { return "foo"; }};
+    var Foo = function (hash) { this.hash = hash; };
+    Foo.prototype.toHash = function () { return this.hash; };
+    var a2 = new Foo("123456");
+    var Bar = function () {};
+    var a3 = Object.create(Bar.prototype);
+    a3.toHash = function () { return "123456"; };
+    var b1 = {x: 2, y: 3, toHash: function () { return "000000"; }, toString: function () { return "foo"; }};
+    var b2 = new Foo("000000");
+    var b3 = new Bar();
+    b3.toHash = function () { return "000000"; };
+
+    var merged = Aleatory.uniform([a1, a2, a3, b1]);
+    assert(merged.probabilityAt(a1).equals(Fraction(3 / 4)));
+    assert(merged.probabilityAt(a2).equals(Fraction(3 / 4)));
+    assert(merged.probabilityAt(a3).equals(Fraction(3 / 4)));
+    assert(merged.probabilityAt(b1).equals(Fraction(1 / 4)));
+    assert(merged.probabilityAt(b2).equals(Fraction(1 / 4)));
+    assert(merged.probabilityAt(b3).equals(Fraction(1 / 4)));
+  });
+
+  it('uses the toString method of objects for their indentity, if toHash is absent', function () {
+    var a1 = {x: 2, y: 3, toString: function () { return "123456"; }};
+    var Foo = function () {};
+    Foo.prototype.toString = function () { return "123456"; };
+    var a2 = new Foo();
+    var Bar = function () {};
+    var a3 = Object.create(Bar.prototype);
+    a3.toString = function () { return "123456"; };
+
+    var merged = Aleatory.uniform([a1, a2, a3]);
+    assert(merged.probabilityAt(a1).equals(Fraction(1)));
+    assert(merged.probabilityAt(a2).equals(Fraction(1)));
+    assert(merged.probabilityAt(a3).equals(Fraction(1)));
+  });
+
+  it('distinguishes between an object with a toHash method and an object with a corresponding toString', function () {
+    var a1 = {x: 2, y: 3, toHash: function () { return "123456"; }};
+    var Foo = function () {};
+    Foo.prototype.toString = function () { return "123456"; };
+    var a2 = new Foo();
+
+    var mixed = Aleatory.uniform([a1, a2]);
+    assert(mixed.probabilityAt(a1).equals(Fraction(1/2)));
+    assert(mixed.probabilityAt(a2).equals(Fraction(1/2)));
+  });
+
+  it('distinguishes between a hashable object, an object, a number and a string with the same value', function () {
+    var o1 = {toHash: function () { return "42"; }};
+    var o2 = {toString: function () { return "42"; }};
+
+    var mixed = Aleatory.uniform([o1, o1, o1, o1, o2, o2, o2, 42, 42, "42"]);
+    assert(mixed.probabilityAt(o1).equals(Fraction(4 / 10)));
+    assert(mixed.probabilityAt(o2).equals(Fraction(3 / 10)));
+    assert(mixed.probabilityAt(42).equals(Fraction(2 / 10)));
+    assert(mixed.probabilityAt("42").equals(Fraction(1 / 10)));
+  });
+
+  it('doesn\'t flatten arrays for equalitity', function () {
+    var a1 = [1, 2, 3];
+    var a2 = ["1", 2, 3];
+    var a3 = [1, [2, 3]];
+    var a4 = [[1, 2], "3"];
+
+    var mixed = Aleatory.uniform([a1, a2, a3, a4]);
+
+    assert(mixed.probabilityAt(a1).equals(Fraction(1/4)));
+    assert(mixed.probabilityAt(a2).equals(Fraction(1/4)));
+    assert(mixed.probabilityAt(a3).equals(Fraction(1/4)));
+    assert(mixed.probabilityAt(a4).equals(Fraction(1/4)));
+  });
+});

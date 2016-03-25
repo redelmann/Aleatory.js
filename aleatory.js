@@ -63,6 +63,34 @@
             this.content = content;
         }
 
+        /**
+         * Function to apply on values to get their key.
+         *
+         * @param {*} value - The value.
+         * @return {string} The key of the value.
+         */
+        function getKey(value) {
+            if (value === undefined) {
+                return "undefined";
+            }
+            if (value === null) {
+                return "null";
+            }
+            if (typeof(value.toHash) === 'function') {
+                var hash = value.toHash();
+                return "hashed:" + hash.length + ":" + hash;
+            }
+            if (value.constructor === Array) {
+                var str = "array:" + value.length;
+                for (var i = 0; i < value.length; i++) {
+                    str += ":" + getKey(value[i]);
+                }
+                return str;
+            }
+            var str = value.toString();
+            return typeof(value) + ":" + str.length + ":" + str;
+        }
+
         //---- Methods ----//
 
         /**
@@ -80,12 +108,12 @@
             for (var i = 0; i < domain.length; i++) {
                 var oldValue = domain[i];
                 var newValue = toResult(oldValue);
-                var aliasItem = newContent[newValue];
-                var newProb = this.content[oldValue].probability;
+                var aliasItem = newContent[getKey(newValue)];
+                var newProb = this.content[getKey(oldValue)].probability;
                 if (aliasItem !== undefined) {
                     newProb = newProb.add(aliasItem.probability);
                 }
-                newContent[newValue] = new Item(newValue, newProb);
+                newContent[getKey(newValue)] = new Item(newValue, newProb);
             }
             return new Aleatory(newContent);
         };
@@ -109,13 +137,13 @@
                 var newDomain = newDistribution.domain();
                 for (var j = 0; j < newDomain.length; j++) {
                     var newValue = newDomain[j];
-                    var aliasItem = newContent[newValue];
-                    var newProb = newDistribution.content[newValue].probability.mul(
-                        this.content[oldValue].probability);
+                    var aliasItem = newContent[getKey(newValue)];
+                    var newProb = newDistribution.content[getKey(newValue)].probability.mul(
+                        this.content[getKey(oldValue)].probability);
                     if (aliasItem !== undefined) {
                         newProb = newProb.add(aliasItem.probability);
                     }
-                    newContent[newValue] = new Item(newValue, newProb);
+                    newContent[getKey(newValue)] = new Item(newValue, newProb);
                 }
             }
             return new Aleatory(newContent);
@@ -134,17 +162,17 @@
             var thatDomain = that.domain();
             for (var i = 0; i < thisDomain.length; i++) {
                 var thisValue = thisDomain[i];
-                var thisProb = this.content[thisValue].probability;
+                var thisProb = this.content[getKey(thisValue)].probability;
                 for (var j = 0; j < thatDomain.length; j++) {
                     var thatValue = thatDomain[j];
-                    var thatProb = that.content[thatValue].probability;
+                    var thatProb = that.content[getKey(thatValue)].probability;
                     var newValue = combiner(thisValue, thatValue);
-                    var aliasItem = newContent[newValue];
+                    var aliasItem = newContent[getKey(newValue)];
                     var newProb = thisProb.mul(thatProb);
                     if (aliasItem !== undefined) {
                         newProb = newProb.add(aliasItem.probability);
                     }
-                    newContent[newValue] = new Item(newValue, newProb);
+                    newContent[getKey(newValue)] = new Item(newValue, newProb);
                 }
             }
             return new Aleatory(newContent);
@@ -171,7 +199,7 @@
             var domain = this.domain();
             var item, i;
             for (i = 0; i < domain.length; i++) {
-                item = this.content[domain[i]];
+                item = this.content[getKey(domain[i])];
                 if (predicate(item.value)) {
                     totalProbability = totalProbability.add(item.probability);
                     successes.push(new Item(item.value, item.probability));
@@ -185,7 +213,7 @@
             for (i = 0; i < successes.length; i++) {
                 item = successes[i];
                 item.probability = item.probability.div(totalProbability);
-                newContent[item.value] = item;
+                newContent[getKey(item.value)] = item;
             }
             return new Aleatory(newContent);
         };
@@ -212,7 +240,7 @@
          * @return {Fraction} The probability of the value.
          */
         Aleatory.prototype.probabilityAt = function (value) {
-            var item = this.content[value];
+            var item = this.content[getKey(value)];
             if (item !== undefined) {
                 return item.probability;
             }
@@ -258,12 +286,12 @@
             var p = new Fraction(1).div(n);
             var content = {};
             for (var i = 0; i < n; i++) {
-                var aliasItem = content[elements[i]];
+                var aliasItem = content[getKey(elements[i])];
                 var item = new Item(elements[i], p);
                 if (aliasItem !== undefined) {
                     item.probability = item.probability.add(aliasItem.probability);
                 }
-                content[elements[i]] = item;
+                content[getKey(elements[i])] = item;
             }
             return new Aleatory(content);
         };
@@ -354,7 +382,7 @@
 
             var content = {};
             for (i = 0; i <= n; i++) {
-                content[i] = new Item(i, coefs[i].mul(ps[i]).mul(qs[i]));
+                content[getKey(i)] = new Item(i, coefs[i].mul(ps[i]).mul(qs[i]));
             }
 
             return new Aleatory(content);
