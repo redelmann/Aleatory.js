@@ -329,7 +329,7 @@
                     continue;
                 }
                 total = total.add(itemWeight);
-                var item = new Item(elements[i], itemWeight);
+                var item = new Item(elements[i].value, itemWeight);
                 var aliasItem = content[getKey(elements[i].value)];
                 if (aliasItem !== undefined) {
                     item.probability = item.probability.add(aliasItem.probability);

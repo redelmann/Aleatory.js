@@ -40,8 +40,16 @@ describe('uniform', function () {
   });
 });
 
-
 describe('weighted', function () {
+
+  it('uses the value parameter for the actual value', function () {
+    var domain = Aleatory.weighted([{value: 1, weight: 0.3}, {value: 2, weight: 0.65}, {value: 3, weight: 0.05}]).domain();
+    assert.equal(domain.length, 3);
+    assert.equal(domain.find(function (x) { return x === 1 }), 1);
+    assert.equal(domain.find(function (x) { return x === 2 }), 2);
+    assert.equal(domain.find(function (x) { return x === 3 }), 3);
+  });
+
   it('assigns the probability proportional to the weight for all elements', function () {
     assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 3}]).probabilityAt(1).equals(Fraction(1/6)));
     assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 3}]).probabilityAt(2).equals(Fraction(1/3)));
