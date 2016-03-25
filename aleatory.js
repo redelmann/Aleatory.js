@@ -187,7 +187,7 @@
          * sum of all probabilities in the resulting variable is 1.
          *
          * If none of the values satisfy the predicate, this function
-         * return undefined.
+         * returns undefined.
          *
          * @param {Function} predicate - The predicate that values must hold.
          * @return {Aleatory} The Aleatory variable that contains all values which
@@ -292,6 +292,46 @@
                     item.probability = item.probability.add(aliasItem.probability);
                 }
                 content[getKey(elements[i])] = item;
+            }
+            return new Aleatory(content);
+        };
+
+        /**
+         * Weighted distribution of the elements.
+         *
+         * In case of duplicate elements, the probability of each element
+         * is proportional to the sum of the weights of its occurences.
+         *
+         * @param {Array} elements - An array of `{value, weight}` objects.
+         * @return {Aleatory} The weighted Aleatory variable over the elements.
+         */
+        Aleatory.weighted = function (elements) {
+            var n = elements.length;
+
+            if (n <= 0) {
+                return undefined;
+            }
+
+            var total = new Fraction(0);
+            var content = {};
+            var i;
+            for (i = 0; i < n; i++) {
+                var aliasItem = content[getKey(elements[i].value)];
+                var itemWeight = Fraction(elements[i].weight);
+                if (itemWeight.compare(0) !== 1) {
+                    return undefined;
+                }
+                total = total.add(itemWeight);
+                var item = new Item(elements[i], itemWeight);
+                if (aliasItem !== undefined) {
+                    item.probability = item.probability.add(aliasItem.probability);
+                }
+                content[getKey(elements[i].value)] = item;
+            }
+            for (var key in content) {
+                if (content.hasOwnProperty(key)) {
+                    content[key].probability = content[key].probability.div(total); 
+                }
             }
             return new Aleatory(content);
         };

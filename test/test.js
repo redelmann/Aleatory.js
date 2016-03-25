@@ -40,6 +40,37 @@ describe('uniform', function () {
   });
 });
 
+
+describe('weighted', function () {
+  it('assigns the probability proportional to the weight for all elements', function () {
+    assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 3}]).probabilityAt(1).equals(Fraction(1/6)));
+    assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 3}]).probabilityAt(2).equals(Fraction(1/3)));
+    assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 3}]).probabilityAt(3).equals(Fraction(1/2)));
+
+    assert(Aleatory.weighted([{value: 1, weight: 0.3}, {value: 2, weight: 0.65}, {value: 3, weight: 0.05}]).probabilityAt(1).equals(Fraction(0.3)));
+    assert(Aleatory.weighted([{value: 1, weight: 0.3}, {value: 2, weight: 0.65}, {value: 3, weight: 0.05}]).probabilityAt(2).equals(Fraction(0.65)));
+    assert(Aleatory.weighted([{value: 1, weight: 0.3}, {value: 2, weight: 0.65}, {value: 3, weight: 0.05}]).probabilityAt(3).equals(Fraction(0.05)));
+  });
+
+  it('assigns probability 0 to other elements', function () {
+    assert(Aleatory.weighted([{value: 1, weight: 0.3}, {value: 2, weight: 0.65}, {value: 3, weight: 0.05}]).probabilityAt(0).equals(Fraction(0)));
+    assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 3, weight: 12}]).probabilityAt(4).equals(Fraction(0)));
+  });
+
+  it('is undefined when the list of elements is empty', function () {
+    assert.equal(undefined, Aleatory.weighted([]));
+  });
+
+  it('is undefined when some weights are not non-positive', function () {
+    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: -2}, {value: 3, weight: 3}]));
+    assert.equal(undefined, Aleatory.weighted([{value: 1, weight: 1}, {value: 2, weight: 2}, {value: 3, weight: 0}]));
+  });
+
+  it('assigns a probability proportional to the sum of the weights of the occurences', function () {
+    assert(Aleatory.weighted([{value: 1, weight: 1}, {value: 1, weight: 2}, {value: 3, weight: 3}]).probabilityAt(1).equals(Fraction(1/2)));
+  });
+});
+
 describe('dice', function () {
   it('assigns the same probability to all number between 1 and n', function () {
     assert(Aleatory.dice(6).probabilityAt(1).equals(Fraction(1/6)));
