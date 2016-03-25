@@ -45,9 +45,9 @@ describe('weighted', function () {
   it('uses the value parameter for the actual value', function () {
     var domain = Aleatory.weighted([{value: 1, weight: 0.3}, {value: 2, weight: 0.65}, {value: 3, weight: 0.05}]).domain();
     assert.equal(domain.length, 3);
-    assert.equal(domain.find(function (x) { return x === 1 }), 1);
-    assert.equal(domain.find(function (x) { return x === 2 }), 2);
-    assert.equal(domain.find(function (x) { return x === 3 }), 3);
+    assert.equal(domain.find(function (x) { return x === 1; }), 1);
+    assert.equal(domain.find(function (x) { return x === 2; }), 2);
+    assert.equal(domain.find(function (x) { return x === 3; }), 3);
   });
 
   it('assigns the probability proportional to the weight for all elements', function () {
@@ -219,7 +219,7 @@ describe('times', function () {
     var combined = Aleatory.dice(6).times(3);
     assert(combined.probabilityAt(3).equals(Fraction(1/216)));
     assert(combined.probabilityAt(4).equals(Fraction(3/216)));
-    assert(combined.mean().equals(Fraction(21/2)))
+    assert(combined.mean().equals(Fraction(21/2)));
   });
 
   it('supports custom combiner function', function () {

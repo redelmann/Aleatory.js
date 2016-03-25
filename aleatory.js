@@ -70,6 +70,7 @@
          * @return {string} The key of the value.
          */
         function getKey(value) {
+            var str;
             if (value === undefined) {
                 return "undefined";
             }
@@ -81,13 +82,13 @@
                 return "hashed:" + hash.length + ":" + hash;
             }
             if (value.constructor === Array) {
-                var str = "array:" + value.length;
+                str = "array:" + value.length;
                 for (var i = 0; i < value.length; i++) {
                     str += ":" + getKey(value[i]);
                 }
                 return str;
             }
-            var str = value.toString();
+            str = value.toString();
             return typeof(value) + ":" + str.length + ":" + str;
         }
 
@@ -211,7 +212,7 @@
                 mult = mult.combine(combiner, this);
             }
             return mult;
-        }
+        };
 
         /**
          * Bernouli trials distribution.
@@ -348,7 +349,7 @@
                 }
             }
             return mean;
-        }
+        };
 
         /**
          * Computes the variance of this Aleatory variable.
@@ -360,7 +361,7 @@
             var squared = this.map(function (x) { return Fraction(x).mul(
                 Fraction(x)); });
             return squared.mean().sub(mean.mul(mean));
-        }
+        };
 
         /**
          * Returns the probability of a certain value.
