@@ -179,6 +179,71 @@
         };
 
         /**
+         * Bernouli trials distribution.
+         * Each number i between 0 and n inclusive is associated
+         * with the probability of having exactly i successful outcomes
+         * in n trials of given Aleatory variable.
+         *
+         * A value is considered to be a successful outcome if it is "truthy".
+         * All "falsy" values (i.e. false, undefined, NaN, null, 0, "") are
+         * considered to be failures.
+         *
+         * @param {number} n - The number of trials.
+         * @return {Aleatory} The Aleatory variable of the numbers of
+         *                    successful outcomes.
+         */
+        Aleatory.prototype.trials = function (n) {
+
+            if (n < 0) {
+                return undefined;
+            }
+
+            if (n === 0) {
+                return Aleatory.always(0);
+            }
+
+            var p = this.probability(function (x) { return x; });
+            var q = Fraction(1).sub(p);
+
+            if (q.equals(Fraction(1))) {
+                return Aleatory.always(0);
+            }
+
+            if (p.equals(Fraction(1))) {
+                return Aleatory.always(n);
+            }
+
+            var current = Fraction(1);
+            var ps = [current];
+            for (var i = 1; i <= n; i++) {
+                current = current.mul(p);
+                ps[i] = current;
+            }
+
+            current = Fraction(1);
+            var qs = [];
+            qs[n] = current;
+            for (i = n - 1; i >= 0; i--) {
+                current = current.mul(q);
+                qs[i] = current;
+            }
+
+            var coefs = [Fraction(1)];
+            current = Fraction(1);
+            for (i = 0; i < n; i++) {
+                current = current.mul(Fraction(n - i)).div(Fraction(i + 1));
+                coefs.push(current);
+            }
+
+            var content = {};
+            for (i = 0; i <= n; i++) {
+                content[getKey(i)] = new Item(i, coefs[i].mul(ps[i]).mul(qs[i]));
+            }
+
+            return new Aleatory(content);
+        };
+
+        /**
          * Returns this Aleatory variable conditioned by the predicate.
          *
          * All the values in the resulting Aleatory variable satisfy
@@ -401,72 +466,6 @@
                 values.push(i);
             }
             return Aleatory.uniform(values);
-        };
-
-        /**
-         * Bernouli trials distribution.
-         * Each number i between 0 and n inclusive is associated
-         * with the probability of having exactly i successful outcomes
-         * in n trials of given Aleatory variable.
-         *
-         * A value is considered to be a successful outcome if it is "truthy".
-         * All "falsy" values (i.e. false, undefined, NaN, null, 0, "") are
-         * considered to be failures.
-         *
-         * @param {number} n - The number of trials.
-         * @param {Aleatory} aleatory - The Aleatory variable.
-         * @return {Aleatory} The Aleatory variable of the numbers of
-         *                    successful outcomes.
-         */
-        Aleatory.trials = function (n, aleatory) {
-
-            if (n < 0) {
-                return undefined;
-            }
-
-            if (n === 0) {
-                return Aleatory.always(0);
-            }
-
-            var p = aleatory.probability(function (x) { return x; });
-            var q = Fraction(1).sub(p);
-
-            if (q.equals(Fraction(1))) {
-                return Aleatory.always(0);
-            }
-
-            if (p.equals(Fraction(1))) {
-                return Aleatory.always(n);
-            }
-
-            var current = Fraction(1);
-            var ps = [current];
-            for (var i = 1; i <= n; i++) {
-                current = current.mul(p);
-                ps[i] = current;
-            }
-
-            current = Fraction(1);
-            var qs = [];
-            qs[n] = current;
-            for (i = n - 1; i >= 0; i--) {
-                current = current.mul(q);
-                qs[i] = current;
-            }
-
-            var coefs = [Fraction(1)];
-            current = Fraction(1);
-            for (i = 0; i < n; i++) {
-                current = current.mul(Fraction(n - i)).div(Fraction(i + 1));
-                coefs.push(current);
-            }
-
-            var content = {};
-            for (i = 0; i <= n; i++) {
-                content[getKey(i)] = new Item(i, coefs[i].mul(ps[i]).mul(qs[i]));
-            }
-
-            return new Aleatory(content);
         };
 
         return Aleatory;

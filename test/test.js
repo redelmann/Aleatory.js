@@ -114,28 +114,28 @@ describe('dice', function () {
 
 describe('trials', function () {
   it('returns 0 with probability 1 when 0 trials are performed.', function () {
-    assert(Aleatory.trials(0, Aleatory.always(true)).probabilityAt(0).equals(Fraction(1)));
-    assert(Aleatory.trials(0, Aleatory.always(false)).probabilityAt(0).equals(Fraction(1)));
-    assert(Aleatory.trials(0, Aleatory.always(true)).probability(function (x) { return x !== 0; }).equals(Fraction(0)));
+    assert(Aleatory.always(true).trials(0).probabilityAt(0).equals(Fraction(1)));
+    assert(Aleatory.always(false).trials(0).probabilityAt(0).equals(Fraction(1)));
+    assert(Aleatory.always(true).trials(0).probability(function (x) { return x !== 0; }).equals(Fraction(0)));
   });
 
   it('is undefined when a negative number of trials are performed.', function () {
-    assert.equal(Aleatory.trials(-1, Aleatory.always(true)), undefined);
-    assert.equal(Aleatory.trials(-4, Aleatory.always(false)), undefined);
+    assert.equal(Aleatory.always(true).trials(-1), undefined);
+    assert.equal(Aleatory.always(false).trials(-4), undefined);
   });
 
   it('considers all falsy values to be failures', function () {
-    assert(Aleatory.trials(10, Aleatory.uniform([false, undefined, NaN, null, 0, ''])).probabilityAt(0).equals(Fraction(1)));
-    assert(Aleatory.trials(3, Aleatory.uniform([false, undefined, NaN, null, 0, ''])).probabilityAt(0).equals(Fraction(1)));
+    assert(Aleatory.uniform([false, undefined, NaN, null, 0, '']).trials(10).probabilityAt(0).equals(Fraction(1)));
+    assert(Aleatory.uniform([false, undefined, NaN, null, 0, '']).trials(3).probabilityAt(0).equals(Fraction(1)));
   });
 
   it('considers all truthy values to be successes', function () {
-    assert(Aleatory.trials(10, Aleatory.uniform([true, 1, 10, 42, "0"])).probabilityAt(10).equals(Fraction(1)));
-    assert(Aleatory.trials(3, Aleatory.uniform([true, 1, 10, 42, "0"])).probabilityAt(3).equals(Fraction(1)));
+    assert(Aleatory.uniform([true, 1, 10, 42, "0"]).trials(10).probabilityAt(10).equals(Fraction(1)));
+    assert(Aleatory.uniform([true, 1, 10, 42, "0"]).trials(3).probabilityAt(3).equals(Fraction(1)));
   });
 
   it('correctly compute probabilities of successes', function () {
-    var trials = Aleatory.trials(3, Aleatory.uniform([true, true, false]));
+    var trials = Aleatory.uniform([true, true, false]).trials(3);
     assert(trials.probabilityAt(0).equals(Fraction(1/27)));
     assert(trials.probabilityAt(1).equals(Fraction(6/27)));
     assert(trials.probabilityAt(2).equals(Fraction(12/27)));
