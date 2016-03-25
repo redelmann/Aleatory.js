@@ -298,3 +298,22 @@ describe('Aleatory', function () {
     assert(mixed.probabilityAt(a4).equals(Fraction(1/4)));
   });
 });
+
+describe('mean', function () {
+  it('computes the mean', function () {
+    assert(Aleatory.uniform([1, 2, 3, 4, 5]).mean().equals(Fraction(3)));
+    assert(Aleatory.weighted([
+      { value: 1, weight: 2 },
+      { value: 4, weight: 16 },
+      { value: 7, weight: 13 },
+      { value: 12, weight: 5 },
+      { value: 9, weight: 14 }
+    ]).mean().equals(Fraction(343/50)));
+  });
+});
+
+describe('variance', function () {
+  it('computes the variance ', function () {
+    assert(Aleatory.uniform([1, 2, 3, 4]).variance().equals(Fraction(5/4)));
+  });
+});

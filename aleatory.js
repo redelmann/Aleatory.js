@@ -234,6 +234,35 @@
         };
 
         /**
+         * Computes the mean of this Aleatory variable.
+         *
+         * @return {Fraction} The mean of this Aleatory variable.
+         */
+        Aleatory.prototype.mean = function () {
+            var mean = Fraction(0);
+            for (var key in this.content) {
+                if (this.content.hasOwnProperty(key)) {
+                    var item = this.content[key];
+                    mean = mean.add(Fraction(item.value).mul(
+                        item.probability));
+                }
+            }
+            return mean;
+        }
+
+        /**
+         * Computes the variance of this Aleatory variable.
+         *
+         * @return {Fraction} The variance of this Aleatory variable.
+         */
+        Aleatory.prototype.variance = function () {
+            var mean = this.mean();
+            var squared = this.map(function (x) { return Fraction(x).mul(
+                Fraction(x)); });
+            return squared.mean().sub(mean.mul(mean));
+        }
+
+        /**
          * Returns the probability of a certain value.
          *
          * @param {*} value - The value to test.
