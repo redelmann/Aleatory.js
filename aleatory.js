@@ -193,7 +193,7 @@
             if (n <= 0) {
                 return undefined;
             }
-            if (n == 1) {
+            if (n === 1) {
                 return this;
             }
             if (combiner === undefined) {
