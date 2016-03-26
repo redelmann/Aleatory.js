@@ -58,7 +58,7 @@ cheaterD6.probabilityAt(6).toFraction();  // Ha! 1/3. That's cheating!
 It is worth noting that the original dice `d6` remains unchanged and can still be used!
 All of the methods of Aleatory do not mutate the object.
 
-Let's now define the random variable that corresponds to the sum of those two dices.
+Let's now define the random variable that corresponds to the sum of those two dice.
 To create this variable, we make use of the `combine` method.
 
 ```javascript
@@ -321,7 +321,7 @@ The random variable of the numbers of successful outcomes.
 
 
 
-### Mearing random variables
+### Measuring random variables
 
 
 
