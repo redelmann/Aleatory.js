@@ -377,6 +377,88 @@
             return new Fraction(0);
         };
 
+        /**
+         * Creates a generator from this Aleatory variable.
+         *
+         * Takes time linear in the number of values.
+         *
+         * @see Generator
+         * @return {Generator} A generator object which can be sampled.
+         */
+        Aleatory.prototype.toGenerator = function () {
+
+            // The algorithm used is the Alias method.
+
+            var domain = this.domain();
+            var underfulIndexes = [];
+            var overfulIndexes = [];
+            var table = [];
+            var one = new Fraction(1);
+
+            for (var i = 0; i < domain.length; i++) {
+                var item = this.content[getKey(domain[i])];
+                var stay = item.probability.mul(new Fraction(domain.length));
+                var entry = { value: item.value, stay: stay, alias: i };
+                switch (stay.compare(one)) {
+                    case 1:
+                        overfulIndexes.push(i);
+                        break;
+                    case -1:
+                        underfulIndexes.push(i);
+                        break;
+                }
+                table[i] = entry;
+            }
+
+            while (overfulIndexes.length > 0 && underfulIndexes.length > 0) {
+                var underfulIndex = underfulIndexes.pop();
+                var overfulIndex = overfulIndexes.pop();
+
+                var underfulItem = table[underfulIndex];
+                var overfulItem = table[overfulIndex];
+
+                underfulItem.alias = overfulIndex;
+
+                var newOverfulStay = overfulItem.stay.add(underfulItem.stay).sub(one);
+                overfulItem.stay = newOverfulStay;
+
+                switch (newOverfulStay.compare(one)) {
+                    case 1:
+                        overfulIndexes.push(overfulIndex);
+                        break;
+                    case -1:
+                        underfulIndexes.push(overfulIndex);
+                        break;
+                }
+            }
+
+            return new Generator(table);
+        };
+
+        /** Random number generator. */
+        function Generator(table) {
+            this.table = table;
+        }
+
+        /**
+         * Return the next random element from this generator.
+         *
+         * Takes constant time.
+         *
+         * @return {*} A random value of the generator.
+         */
+        Generator.prototype.next = function () {
+            var i = Math.floor(Math.random() * this.table.length);
+            var j = Math.random();
+
+            var entry = this.table[i];
+
+            if (j < entry.stay.valueOf()) {
+                return entry.value;
+            }
+            return this.table[entry.alias].value;
+        };
+
         //---- Static functions ----//
 
         /**
