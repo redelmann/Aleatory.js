@@ -239,24 +239,24 @@
             }
 
             var p = this.probability(function (x) { return x; });
-            var q = Fraction(1).sub(p);
+            var q = new Fraction(1).sub(p);
 
-            if (q.equals(Fraction(1))) {
+            if (q.equals(new Fraction(1))) {
                 return Aleatory.always(0);
             }
 
-            if (p.equals(Fraction(1))) {
+            if (p.equals(new Fraction(1))) {
                 return Aleatory.always(n);
             }
 
-            var current = Fraction(1);
+            var current = new Fraction(1);
             var ps = [current];
             for (var i = 1; i <= n; i++) {
                 current = current.mul(p);
                 ps[i] = current;
             }
 
-            current = Fraction(1);
+            current = new Fraction(1);
             var qs = [];
             qs[n] = current;
             for (i = n - 1; i >= 0; i--) {
@@ -264,10 +264,10 @@
                 qs[i] = current;
             }
 
-            var coefs = [Fraction(1)];
-            current = Fraction(1);
+            var coefs = [new Fraction(1)];
+            current = new Fraction(1);
             for (i = 0; i < n; i++) {
-                current = current.mul(Fraction(n - i)).div(Fraction(i + 1));
+                current = current.mul(new Fraction(n - i)).div(new Fraction(i + 1));
                 coefs.push(current);
             }
 
@@ -295,7 +295,7 @@
          *                    satisfy the predicate.
          */
         Aleatory.prototype.assume = function (predicate) {
-            var totalProbability = Fraction(0);
+            var totalProbability = new Fraction(0);
             var successes = [];
             var domain = this.domain();
             var item, i;
@@ -306,7 +306,7 @@
                     successes.push(new Item(item.value, item.probability));
                 }
             }
-            if (totalProbability.equals(Fraction(0))) {
+            if (totalProbability.equals(new Fraction(0))) {
                 // The predicate never holds.
                 return undefined;
             }
@@ -340,11 +340,11 @@
          * @return {Fraction} The mean of this Aleatory variable.
          */
         Aleatory.prototype.mean = function () {
-            var mean = Fraction(0);
+            var mean = new Fraction(0);
             for (var key in this.content) {
                 if (this.content.hasOwnProperty(key)) {
                     var item = this.content[key];
-                    mean = mean.add(Fraction(item.value).mul(
+                    mean = mean.add(new Fraction(item.value).mul(
                         item.probability));
                 }
             }
@@ -358,8 +358,8 @@
          */
         Aleatory.prototype.variance = function () {
             var mean = this.mean();
-            var squared = this.map(function (x) { return Fraction(x).mul(
-                Fraction(x)); });
+            var squared = this.map(function (x) { return new Fraction(x).mul(
+                new Fraction(x)); });
             return squared.mean().sub(mean.mul(mean));
         };
 
@@ -374,7 +374,7 @@
             if (item !== undefined) {
                 return item.probability;
             }
-            return Fraction(0);
+            return new Fraction(0);
         };
 
         //---- Static functions ----//
@@ -388,7 +388,7 @@
          */
         Aleatory.prototype.probability = function (predicate) {
             var domain = this.domain();
-            var prob = Fraction(0);
+            var prob = new Fraction(0);
             for (var i = 0; i < domain.length; i++) {
                 if (predicate(domain[i])) {
                     prob = prob.add(this.probabilityAt(domain[i]));
@@ -450,12 +450,12 @@
             var content = {};
             var i;
             for (i = 0; i < n; i++) {
-                var itemWeight = Fraction(elements[i].weight);
+                var itemWeight = new Fraction(elements[i].weight);
                 if (itemWeight.compare(0) === -1) {
                     // Negative weights are not supported.
                     return undefined;
                 }
-                if (itemWeight.equals(Fraction(0))) {
+                if (itemWeight.equals(new Fraction(0))) {
                     continue;
                 }
                 total = total.add(itemWeight);
