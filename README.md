@@ -571,7 +571,8 @@ The random generator is used to get random values from this Aleatory variable.
 Takes time linear in the number of values.
 
 The generator has a single method, called `next`, which returns a random
-value from the generator. Each `value` is returned with probability `this.probability(value)`.
+value from the generator. Each `value` is returned with probability `this.probabilityAt(value)`.
+Calling `next` takes only constant time.
 
 ##### Returns:
 
