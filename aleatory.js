@@ -378,14 +378,17 @@
         };
 
         /**
-         * Creates a generator from this Aleatory variable.
+         * Creates a random value generator.
+         * The random generator is used to get
+         * random values from this Aleatory variable.
          *
          * Takes time linear in the number of values.
          *
-         * @see Generator
-         * @return {Generator} A generator object which can be sampled.
+         * @return {Generator} A random value generator which
+         *                     follows the distribution of values
+         *                     described by this Aleatory variable.
          */
-        Aleatory.prototype.toGenerator = function () {
+        Aleatory.prototype.createGenerator = function () {
 
             // The algorithm used is the Alias method.
 
@@ -441,7 +444,9 @@
         }
 
         /**
-         * Return the next random element from this generator.
+         * Return the next random value from this generator.
+         * Follows the distribution of values described by the
+         * Aleatory variable from which this Generator was derived.
          *
          * Takes constant time.
          *
