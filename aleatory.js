@@ -238,7 +238,9 @@
                 return Aleatory.always(0);
             }
 
-            var p = this.probability(function (x) { return x; });
+            var p = this.probability(function (x) {
+                return x; 
+            });
             var q = new Fraction(1).sub(p);
 
             if (q.equals(new Fraction(1))) {
@@ -358,8 +360,9 @@
          */
         Aleatory.prototype.variance = function () {
             var mean = this.mean();
-            var squared = this.map(function (x) { return new Fraction(x).mul(
-                new Fraction(x)); });
+            var squared = this.map(function (x) {
+                return new Fraction(x).mul(new Fraction(x)); 
+            });
             return squared.mean().sub(mean.mul(mean));
         };
 
