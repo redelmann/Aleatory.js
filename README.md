@@ -7,7 +7,15 @@ Aleatory.js
 [![Build Status](https://travis-ci.org/redelmann/Aleatory.js.svg?branch=master)](https://travis-ci.org/redelmann/Aleatory.js "View this project on Travis-CI")
 [![Apache-2.0 license](http://img.shields.io/badge/license-Apache-orange.svg)](http://opensource.org/licenses/Apache-2.0 "View the Apache-2.0 License")
 
-A discrete random variable library in Javascript with a functional interface.
+> <b>aleatory</b> <i>|ˈeɪlɪət(ə)ri, ˈalɪət(ə)ri|</i> 
+>
+> depending on the throw of a dice or on chance; random.
+>
+> -- <cite>Oxford English Dictionary</cite>
+
+Aleatory.js is a Javascript library to work with discrete random variables.
+The library exposes an expressive and functional API to create, manipulate, compose and query random variables.
+
 
 Example
 -------
@@ -31,6 +39,7 @@ Now that we have this random variable, we can query it.
 d6.probabilityAt(1).toFraction();  // 1/6, good.
 d6.probabilityAt(6).toFraction();  // Still 1/6. Sounds about right!
 d6.probabilityAt(7).toFraction();  // 0, nobody's that lucky!
+d6.mean().toFraction();  // 7/2, as expected!
 ```
 
 Random variables can also be derived from existing random variables.
@@ -71,8 +80,33 @@ Now, let's compute to probability to get at least 7 on those two dice.
 combined.probability(function (n) { return n >= 7 }).toFraction()  // 13/18, good odds!
 ```
 
+Random values can also be sampled from those objects.
+To do so, one must first create a `Generator` from the random variable.
+
+```javascript
+var gen = combined.createGenerator();
+```
+
+The generator can then be sampled using its `next` method.
+The distribution of values sampled from the generator follows the random variable it was derived from.
+
+```javascript
+var sum = 0;
+var n = 1000000;
+
+for (var i = 0; i < n; i++) {
+  sum += gen.next();
+}
+
+meanNext = sum / n;
+
+meanNext;  // The mean of generated values: 7.8341 (may change, it's random!)
+
+combined.mean().valueOf();  // The mean of the random variable: 7.833333333333333
+```
+
 Aleatory variables have many more methods that can be used to transform them and query them in many interesting ways.
-You can have a look at them in the documentation below.
+Have a look at them in the documentation below!
 
 Install
 -------
@@ -148,6 +182,14 @@ Random variable that always returns the same value.
 
 The random variable that assigns to the value the probability `1`.
 
+##### Example:
+
+```javascript
+var forecast = Aleatory.always("sunny");
+forecast.probabilityAt("sunny").toFraction();  // 1
+forecast.probabilityAt("cloudy").toFraction();  // 0
+```
+
 
 
 #### (static) dice(n) → {Aleatory}
@@ -164,6 +206,12 @@ Uniform Aleatory variable over numbers between `1` and `n` inclusive.
 
 The uniform random variable of numbers between `1` and `n` inclusive.
 
+##### Example:
+
+```javascript
+var d3 = Aleatory.dice(3);
+d3.mean().toFraction();  // 2
+```
 
 
 
@@ -182,6 +230,12 @@ In case of duplicate elements, the probability of each element is proportional t
 
 The uniform random variable over the elements.
 
+##### Example:
+
+```javascript
+var colors = Aleatory.uniform(["red", "green", "blue", "yellow"]);
+colors.probabilityAt("red").toFraction();  // 1/4
+```
 
 
 
@@ -201,6 +255,18 @@ In case of duplicate elements, the probability of each element is proportional t
 ##### Returns:
 
 The weighted random variable over the elements.
+
+##### Example:
+
+```javascript
+var names = Aleatory.weighted([
+  { value: "Alice", weight: 6 },
+  { value: "Bob", weight: 2 },
+  { value: "Charles", weight: 3 },
+  { value: "Douglas", weight: 1 }
+]);
+names.probabilityAt("Bob").toFraction();  // 1/6
+```
 
 
 
@@ -223,6 +289,25 @@ The resulting random variable assigns to each result the probability of this res
 
 The aleatory variable of the results.
 
+##### Example:
+
+```javascript
+var result = Aleatory.dice(6).map(function (n) {
+  if (n <= 1) {
+    return "Critical failure";
+  }
+  if (n <= 3) {
+    return "Failure";
+  }
+  if (n <= 5) {
+    return "Success";
+  }
+  return "Critical success";
+})
+result.probabilityAt("Critical failure").toFraction();  // 1/6
+result.probabilityAt("Success").toFraction();  // 1/3
+```
+
 
 
 #### flatMap(toAleatory) → {Aleatory}
@@ -240,6 +325,19 @@ The resulting aleatory variable assigns to each result the probability of this r
 ##### Returns:
 
 The random variable of the results.
+
+##### Example:
+
+```javascript
+var result = Aleatory.dice(6).flatMap(function (n) {
+  if (n <= 3) {
+    return Aleatory.always(0);
+  }
+  return Aleatory.dice(3);
+})
+result.probabilityAt(0).toFraction();  // 1/2
+result.probabilityAt(1).toFraction();  // 1/6
+```
 
 
 
@@ -261,6 +359,16 @@ If none of the values satisfy the predicate, this function returns `undefined`.
 
 The random variable that contains all values which satisfy the predicate.
 
+##### Example:
+
+```javascript
+var result = Aleatory.dice(6).assume(function (n) {
+  return n % 2 == 0;
+})
+result.probabilityAt(2).toFraction();  // 1/3
+result.probabilityAt(5).toFraction();  // 0
+```
+
 
 
 #### combine(combiner, that) → {Aleatory}
@@ -278,6 +386,16 @@ Combines two random variables using a combiner function.
 ##### Returns:
 
 The random variable of the combinations.
+
+##### Example:
+
+```javascript
+var result = Aleatory.dice(6).combine(function (a, b) { 
+  return a - b;
+}, Aleatory.dice(3))
+result.probabilityAt(2).toFraction();  // 1/6
+result.probabilityAt(5).toFraction();  // 1/18
+```
 
 
 
@@ -301,6 +419,15 @@ Returns the random variable of the combinations.
 
 The random variable of combinations.
 
+##### Example:
+
+```javascript
+var tenD3 = Aleatory.dice(3).times(10);
+tenD3.mean().toFraction();  // 20
+tenD3.probability(function (n) { return n >= 20; }).toFraction();  // 34001/59049
+```
+
+
 
 
 #### trials(n) → {Aleatory}
@@ -319,6 +446,14 @@ A value is considered to be a successful outcome if it is "truthy". All "falsy" 
 
 The random variable of the numbers of successful outcomes.
 
+##### Example:
+
+```javascript
+var trials = Aleatory.dice(6).map(function (n) {
+  return n === 1 || n === 6;
+}).trials(10);
+trials.mean().toFraction();  // 10/3
+```
 
 
 ### Measuring random variables
@@ -333,6 +468,12 @@ Returns all values with non-zero probability.
 
 Values with non-zero probability.
 
+##### Example:
+
+```javascript
+var twoD6 = Aleatory.dice(6).times(2);
+twoD6.domain();  // [ 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+```
 
 
 #### probabilityAt(value) → {Fraction}
@@ -348,6 +489,16 @@ Returns the probability of a certain value.
 ##### Returns:
 
 The probability of the value.
+
+##### Example:
+
+```javascript
+var d6 = Aleatory.dice(6);
+d6.probabilityAt(1).toFraction();  // 1/6
+d6.probabilityAt(6).toFraction();  // 1/6
+d6.probabilityAt(0).toFraction();  // 0
+d6.probabilityAt("6").toFraction();  // 0
+```
 
 
 
@@ -365,6 +516,13 @@ Returns the probability of a certain predicate being true.
 
 The probability of having a value that satifies the predicate.
 
+##### Example:
+
+```javascript
+var d6 = Aleatory.dice(6);
+d6.probability(function (n) { return n >= 3; }).toFraction();  // 2/3
+```
+
 
 
 #### mean() → {Fraction}
@@ -375,6 +533,13 @@ Computes the mean, or expectation of this random variable.
 
 The mean of this random variable.
 
+##### Example:
+
+```javascript
+var d6 = Aleatory.dice(6);
+d6.mean().toFraction();  // 7/2
+```
+
 
 
 #### variance() → {Fraction}
@@ -384,6 +549,45 @@ Computes the variance of this random variable.
 ##### Returns:
 
 The variance of this random variable.
+
+##### Example:
+
+```javascript
+var d6 = Aleatory.dice(6);
+d6.variance().toFraction();  // 35/12
+```
+
+
+
+### Sampling random values
+
+
+
+#### createGenerator() → {Generator}
+
+Creates a random value generator.
+The random generator is used to get random values from this Aleatory variable.
+
+Takes time linear in the number of values.
+
+The generator has a single method, called `next`, which returns a random
+value from the generator. Each `value` is returned with probability `this.probability(value)`.
+
+##### Returns:
+
+A random value generator which follows the distribution of values described by this random variable.
+
+##### Example:
+
+```javascript
+var gen = Aleatory.dice(6).times(2).createGenerator();
+gen.next();  // 7
+gen.next();  // 8
+gen.next();  // 6
+gen.next();  // 10
+gen.next();  // 7
+```
+
 
 
 JSDoc
