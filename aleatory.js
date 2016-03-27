@@ -100,15 +100,15 @@
          * The resulting aleatory variable assigns to each result
          * the probability of this result to be obtained.
          *
-         * @param {Function} toResult - The function to apply on each value.
+         * @param {Function} valueToValue - The function to apply on each value.
          * @return {Aleatory} The aleatory variable of the results.
          */
-        Aleatory.prototype.map = function (toResult) {
+        Aleatory.prototype.map = function (valueToValue) {
             var newContent = {};
             var domain = this.domain();
             for (var i = 0; i < domain.length; i++) {
                 var oldValue = domain[i];
-                var newValue = toResult(oldValue);
+                var newValue = valueToValue(oldValue);
                 var aliasItem = newContent[getKey(newValue)];
                 var newProb = this.content[getKey(oldValue)].probability;
                 if (aliasItem !== undefined) {
@@ -126,15 +126,15 @@
          * The resulting aleatory variable assigns to each result
          * the probability of this result to be obtained.
          *
-         * @param {Function} toAleatory - The function to apply on each value.
+         * @param {Function} valueToAleatory - The function to apply on each value.
          * @return {Aleatory} The Aleatory variable of results.
          */
-        Aleatory.prototype.flatMap = function (toAleatory) {
+        Aleatory.prototype.flatMap = function (valueToAleatory) {
             var newContent = {};
             var oldDomain = this.domain();
             for (var i = 0; i < oldDomain.length; i++) {
                 var oldValue = oldDomain[i];
-                var newDistribution = toAleatory(oldValue);
+                var newDistribution = valueToAleatory(oldValue);
                 var newDomain = newDistribution.domain();
                 for (var j = 0; j < newDomain.length; j++) {
                     var newValue = newDomain[j];
