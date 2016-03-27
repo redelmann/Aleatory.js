@@ -334,3 +334,50 @@ describe('variance', function () {
     assert(Aleatory.uniform([1, 2, 3, 4]).variance().equals(new Fraction(5/4)));
   });
 });
+
+describe('Generator table', function () {
+  it('contains one entry per value', function () {
+    assert(Aleatory.dice(76).createGenerator().table.length, 76);
+    assert(Aleatory.dice(22).createGenerator().table.length, 22);
+  });
+
+  it('gives values space proportional to their probability', function () {
+    function checkTable(aleatory) {
+
+      var table = aleatory.createGenerator().table;
+      var probabilities = [];
+
+      var i;
+      for (i = 0; i < table.length; i++) {
+        probabilities[i] = table[i].stay;
+      }
+
+      for (i = 0; i < table.length; i++) {
+        var alias = table[i].alias;
+        probabilities[alias] = probabilities[alias].add(new Fraction(1)).sub(table[i].stay);
+      }
+
+      for (i = 0; i < table.length; i++) {
+        assert(aleatory.probabilityAt(table[i].value).equals(probabilities[i].div(table.length)));
+      }
+    }
+
+    checkTable(Aleatory.uniform([1, 2, 3, 4]));
+    checkTable(Aleatory.dice(12));
+    checkTable(Aleatory.dice(4).times(3));
+    checkTable(Aleatory.weighted([
+      {value: 1, weight: 12},
+      {value: 3, weight: 7},
+      {value: 4, weight: 6},
+      {value: 9, weight: 117}
+    ]));
+    checkTable(Aleatory.weighted([
+      {value: 1, weight: 10},
+      {value: 3, weight: 7},
+      {value: 4, weight: 13},
+      {value: 9, weight: 10},
+      {value: 17, weight: 15},
+      {value: 23, weight: 5}
+    ]));
+  });
+});
