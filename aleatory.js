@@ -243,11 +243,11 @@
             });
             var q = new Fraction(1).sub(p);
 
-            if (q.equals(new Fraction(1))) {
+            if (q.equals(1)) {
                 return Aleatory.always(0);
             }
 
-            if (p.equals(new Fraction(1))) {
+            if (p.equals(1)) {
                 return Aleatory.always(n);
             }
 
@@ -269,7 +269,7 @@
             var coefs = [new Fraction(1)];
             current = new Fraction(1);
             for (i = 0; i < n; i++) {
-                current = current.mul(new Fraction(n - i)).div(new Fraction(i + 1));
+                current = current.mul(n - i).div(i + 1);
                 coefs.push(current);
             }
 
@@ -308,7 +308,7 @@
                     successes.push(new Item(item.value, item.probability));
                 }
             }
-            if (totalProbability.equals(new Fraction(0))) {
+            if (totalProbability.equals(0)) {
                 // The predicate never holds.
                 return undefined;
             }
@@ -346,8 +346,7 @@
             for (var key in this.content) {
                 if (this.content.hasOwnProperty(key)) {
                     var item = this.content[key];
-                    mean = mean.add(new Fraction(item.value).mul(
-                        item.probability));
+                    mean = mean.add(item.probability.mul(item.value));
                 }
             }
             return mean;
@@ -361,7 +360,8 @@
         Aleatory.prototype.variance = function () {
             var mean = this.mean();
             var squared = this.map(function (x) {
-                return new Fraction(x).mul(new Fraction(x)); 
+                var frac = new Fraction(x)
+                return frac.mul(frac); 
             });
             return squared.mean().sub(mean.mul(mean));
         };
@@ -403,7 +403,7 @@
 
             for (var i = 0; i < domain.length; i++) {
                 var item = this.content[getKey(domain[i])];
-                var stay = item.probability.mul(new Fraction(domain.length));
+                var stay = item.probability.mul(domain.length);
                 var entry = { value: item.value, stay: stay, alias: i };
                 switch (stay.compare(one)) {
                     case 1:
@@ -545,7 +545,7 @@
                     // Negative weights are not supported.
                     return undefined;
                 }
-                if (itemWeight.equals(new Fraction(0))) {
+                if (itemWeight.equals(0)) {
                     continue;
                 }
                 total = total.add(itemWeight);
